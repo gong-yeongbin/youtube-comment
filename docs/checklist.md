@@ -15,13 +15,17 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 
 ## 2. youtube 모듈 + ① 패널
 
-- [ ] `config/` — config.yaml + .env 로드 (ConfigModule)
-- [ ] `youtube/youtube.service.ts` — `search.list` 최신순 → `videos.list` 보강, URL → videoId 파서
-- [ ] `youtube/videos.controller.ts` — `GET /api/videos?q=`, `POST /api/videos/resolve`
-- [ ] URL 파서 Jest 유닛 테스트
-- [ ] `features/fetch/fetch-panel.tsx` — 버튼 + 링크 입력 + 목록 (썸네일·제목·채널·날짜)
-- [ ] `shared/api.ts`
-- [ ] verify: 버튼 한 번에 목록 표시
+- [x] `config/` — config.yaml + .env 로드 (ConfigModule)
+- [x] `youtube/youtube.service.ts` — `search.list` 최신순 → `videos.list` 보강, 키 없음·할당량 초과·키 오류를 한국어 메시지로 매핑
+- [x] `youtube/video-id.ts` — URL → videoId 파서
+- [x] `youtube/videos.controller.ts` — `GET /api/videos?q=`, `POST /api/videos/resolve`
+- [x] URL 파서 Jest 유닛 테스트 (16개)
+- [x] `features/fetch/fetch-panel.tsx` — 버튼 + 링크 입력 + 목록 (썸네일·제목·채널·날짜·조회수)
+- [x] `shared/api.ts`, `styles.css` (세 칸 그리드)
+- [x] FetchPanel Vitest 렌더 테스트 (목록 표시, 오류 표시)
+- [x] verify (키 없음): `GET /api/videos` 503, 잘못된 링크 400, 프론트 오류 메시지 표시
+- [ ] verify (키 있음): 버튼 한 번에 목록 표시 ← `.env`에 YOUTUBE_API_KEY 넣은 뒤
+- [ ] `alreadyCommented`를 log.json 기준으로 채우기 ← 4단계에서
 
 ## 3. draft 모듈 + ② 패널
 

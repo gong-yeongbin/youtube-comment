@@ -13,3 +13,14 @@
 - **`profiles/`·`data/`는 디렉토리만 만들고 gitignore.** 크롬 user-data-dir과 `log.json`·스크린샷이 들어가며 Public 저장소에 올라가면 안 된다. `.gitkeep`도 두지 않는다(런타임에 없으면 만들면 된다).
 - **`config.yaml`은 PLAN.md 예시 그대로 커밋한다.** 비밀값이 없고 과제 제출물의 설정 예시 역할을 겸한다. API 키는 `apps/backend/.env`(gitignore)에만 두고 `.env.example`로 키 이름만 공개한다.
 - **backend `tsconfig.json`에 `rootDir: "./src"`를 명시했다.** TypeScript 6부터 `outDir`만 있고 `rootDir`이 없으면 TS5011 오류로 컴파일이 멈춘다. 원본 모노레포 설정에는 없던 항목이라 복사 후 `pnpm dev`에서 처음 드러났다.
+
+## 2단계: youtube 모듈 + ① 패널
+
+- **`googleapis` 대신 전역 `fetch`로 REST를 직접 호출한다.** 쓰는 엔드포인트가 `search.list`·`videos.list` 둘뿐이고, `googleapis` 패키지는 수십 MB에 타입 로딩도 느리다. 응답 타입은 필요한 필드만 인터페이스로 적었다.
+- **오류는 서비스에서 한국어 메시지로 매핑한다.** 키 없음은 503, `quotaExceeded`는 429, 400/403은 502로 보내고 프론트는 본문의 `message`를 그대로 보여 준다. 사용자가 "나도 모르게 과금될까" 걱정했으니 할당량 소진이 명확히 보여야 한다.
+- **`alreadyCommented`는 지금 항상 `false`다.** PLAN.md는 응답에 포함하라고 했지만 근거인 `log.json`은 4단계 log 모듈에서 생긴다. 필드와 UI 표시("댓글 완료")는 미리 만들어 두고 4단계에서 값을 채운다.
+- **검색은 `useQuery`가 아니라 `useMutation`으로 버튼 클릭 시에만 호출한다.** `search.list`가 호출당 100 유닛이라 마운트·포커스 때 자동 재요청되면 할당량이 샌다. 링크 입력도 같은 이유로 submit 시에만 호출한다.
+- **config.yaml 경로는 `__dirname` 기준 4단계 위다.** `src/config`와 `dist/config`가 같은 깊이라 `nest start`·jest 양쪽에서 같은 식이 맞는다. cwd 기준으로 잡으면 루트에서 `pnpm dev`를 돌릴 때와 앱 폴더에서 돌릴 때 달라진다.
+- **backend `incremental`을 껐다.** nest-cli `deleteOutDir: true`가 dist를 지우는데 tsc는 `tsconfig.tsbuildinfo`를 보고 "안 바뀐 파일"의 emit을 건너뛰어, 두 번째 `pnpm dev`부터 `app.controller.js` 등이 dist에 없어 기동이 실패했다. 모노레포 설정에는 `incremental: true`가 있었지만 여기서는 재현되는 문제라 뺐다.
+- **Jest에 `moduleNameMapper: {"^(\\.{1,2}/.*)\\.js$": "$1"}`를 추가했다.** NodeNext 때문에 import 경로에 `.js`를 붙이는데 ts-jest는 이를 `.ts`로 되돌리지 못한다. 모노레포는 경로 별칭만 매핑하고 `.js` import를 쓰지 않아 없던 설정이다.
+- **ValidationPipe·DTO 없이 컨트롤러에서 직접 검사한다.** 입력이 `q` 문자열 하나와 `url` 하나라 class-validator를 들이는 비용이 더 크다. 입력이 늘어나는 5단계(`/api/post`)에서 필요해지면 그때 도입한다.

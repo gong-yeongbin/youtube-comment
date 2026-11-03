@@ -21,7 +21,7 @@
 		"isolatedModules": false,
 		"removeComments": true,
 		"sourceMap": true,
-		"incremental": true,
+		"incremental": false,
 		"strictPropertyInitialization": false
 	}
 }
