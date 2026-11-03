@@ -181,3 +181,62 @@ textarea {
 .log-table a {
 	color: #2563eb;
 }
+.profile-row {
+	display: flex;
+	gap: 8px;
+}
+.profile-row select {
+	font: inherit;
+	padding: 8px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	flex: 1;
+	min-width: 0;
+}
+.preview {
+	margin: 0;
+	padding: 10px;
+	background: #f9fafb;
+	border-radius: 6px;
+	font-size: 14px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+button.primary {
+	background: #2563eb;
+	border-color: #2563eb;
+	color: #fff;
+	font-weight: 600;
+}
+.steps {
+	margin: 0;
+	padding: 0 0 0 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 14px;
+}
+.steps li {
+	color: #9ca3af;
+}
+.steps li.active {
+	color: #2563eb;
+	font-weight: 600;
+}
+.steps li.done {
+	color: #15803d;
+}
+.steps li.failed {
+	color: #b91c1c;
+}
+.steps small {
+	display: block;
+	color: #6b7280;
+	font-weight: 400;
+}
+.failure img {
+	width: 100%;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	margin-top: 8px;
+}

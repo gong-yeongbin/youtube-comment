@@ -58,3 +58,27 @@ export interface LogEntry {
 export function fetchLog(): Promise<LogEntry[]> {
 	return request<LogEntry[]>('/log');
 }
+
+export interface Profile {
+	name: string;
+	todayCount: number;
+	hasProfileDir: boolean;
+}
+
+export type PostEvent = { type: 'opening' | 'typing' | 'posted' | 'verified'; message?: string } | { type: 'failed'; reason: string; message: string; screenshot?: string };
+
+export function fetchProfiles(): Promise<Profile[]> {
+	return request<Profile[]>('/profiles');
+}
+
+export function loginProfile(name: string): Promise<{ opened: boolean; message: string }> {
+	return request(`/profiles/${name}/login`, { method: 'POST' });
+}
+
+export function startPost(body: { videoId: string; videoTitle: string; comment: string; profile?: string }): Promise<{ jobId: string; profile: string }> {
+	return request('/post', { method: 'POST', body: JSON.stringify(body) });
+}
+
+export function postEventsUrl(jobId: string): string {
+	return `/api/post/${jobId}/events`;
+}

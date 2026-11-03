@@ -48,3 +48,17 @@
 - **라운드로빈은 "성공 기록이 가장 적은 프로필"이다.** 마지막 사용 프로필의 다음 것을 고르는 방식은 로그아웃된 프로필이 하나 있으면 두 번에 한 번 실패한다. 동률이면 config 순서라 처음 세 번은 youtube1 → 2 → 3으로 돈다.
 - **`alreadyCommented`는 VideosController에서 채운다.** `YoutubeService.videos()`는 API 응답 변환만 하고 로그를 모르게 두었다. draft 단계에서 같은 함수를 쓰는데 거기서는 이 값이 필요 없다.
 - **시드 `data/log.json`은 확인 후 지웠다.** 남겨 두면 `dQw4w9WgXcQ`가 "댓글 완료"로 보이고 오늘 상한에 1개가 세진다.
+
+## 5단계: post 모듈 + 프로필 로그인 + ③ 패널
+
+- **프로필 선택을 ②가 아니라 ③에 뒀다.** PLAN.md는 ②에 두라고 했지만 프로필은 게시 직전에 고르는 값이고, 프로필 목록·오늘 게시 수·로그인 버튼이 모두 post 모듈 API라 게시 버튼 옆이 맞다. ②는 초안 수정에 집중한다.
+- **PosterService는 async generator로 이벤트를 yield한다.** PostService가 `for await`로 받아 ReplaySubject에 넣고, 컨트롤러의 `@Sse()`는 그 Observable을 그대로 돌려준다. ReplaySubject라 프론트가 `POST /api/post` 응답을 받고 EventSource를 여는 사이에 발생한 `opening` 이벤트도 놓치지 않는다. 작업은 종료 5분 뒤 메모리에서 지운다.
+- **동시에 한 작업만 돌린다.** 크롬 창이 둘 뜨면 시연이 어수선하고 같은 프로필 폴더를 두 크롬이 열면 잠금 오류가 난다. 진행 중 두 번째 요청은 409다.
+- **게시 전 서버가 댓글 규칙을 다시 검사한다.** 사용자가 ②에서 초안을 자유롭게 고칠 수 있으니 프론트 표시만 믿지 않고 `POST /api/post`에서 `validateComment`로 400을 낸다.
+- **videoTitle은 프론트가 보낸다.** 로그에 제목을 남기려고 서버가 `videos.list`를 다시 부르면 YouTube 키가 없을 때 게시까지 막힌다. 선택한 영상 정보는 프론트가 이미 갖고 있다.
+- **로그인 판정은 `#avatar-btn` 유무다.** 로그아웃이면 `ytd-masthead a[aria-label="로그인"]`(href에 ServiceLogin)이 대신 있다. 둘 중 하나가 나타날 때까지 15초 기다린 뒤 아바타가 보이면 로그인으로 본다. 헤드리스 프로브로 로그아웃 DOM은 확인했고, 로그인 DOM(`#contenteditable-root`에 타이핑, `#submit-button`, 최상단 `#content-text`)은 계정 로그인 후 실제 게시에서 확인해야 한다.
+- **댓글 확인은 최상단 5개의 `#content-text`를 공백 정규화해 비교한다.** 15초 안에 안 보이면 새로고침 후 10초 더 본다. 그래도 없으면 `not_visible`로 캡처를 남긴다. 유튜브는 방금 단 댓글을 목록 맨 위에 끼워 넣는다.
+- **실패 캡처는 `data/screenshots/<jobId>.png`에 저장하고 `GET /api/screenshots/:file`로 제공한다.** `@nestjs/serve-static`을 들이지 않고 `StreamableFile` 한 줄로 끝냈다. 파일명은 `basename`으로 잘라 경로 탈출을 막는다.
+- **프로필 로그인은 크롬을 열어 두고 바로 응답한다.** `POST /api/profiles/:name/login`은 구글 로그인 페이지를 띄운 뒤 창이 닫히기를 기다리지 않는다. 기다리면 HTTP 요청이 몇 분씩 걸린다. 사용자가 로그인하고 창을 닫으면 세션이 `profiles/<name>`에 남는다.
+- **③ 패널은 `key={videoId}`로 다시 마운트해 진행 상태를 초기화한다.** effect 안에서 setState로 초기화하면 react-hooks 규칙 경고가 나고 렌더가 한 번 더 돈다.
+- **(검증 기록) 로그아웃 상태 라이브 테스트.** 빈 `profiles/youtube1`로 실제 영상에 게시를 시도해 `opening` → `failed not_logged_in` SSE, 1.8MB 캡처 PNG, log.json failed 기록을 확인했다. 테스트로 생긴 log.json과 캡처는 지웠고 `profiles/youtube1` 폴더는 남겼다(gitignore).

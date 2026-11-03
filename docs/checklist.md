@@ -40,7 +40,7 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 - [x] `shared/comment-rules.ts` — 백엔드와 같은 규칙 (클라이언트 즉시 표시용)
 - [x] verify (키 없음): 자막 라이브러리 실제 영상으로 수신 확인, `POST /api/draft` 400/503 응답
 - [ ] verify (키 있음): 영상 3개로 서로 다른 초안, 길이·금지어 검증 통과, `gemini-3.8-flash` 모델명 유효 확인
-- [ ] ② 패널 프로필 선택 ← 5단계 `GET /api/profiles` 만든 뒤
+- [x] 프로필 선택 — ②가 아니라 ③ 게시 버튼 옆에 둠 (5단계)
 - [ ] few-shot을 과제 PDF의 예시 댓글 원문으로 교체
 
 ## 4. log·rules 모듈 + 기록 테이블
@@ -51,16 +51,19 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 - [x] `GET /api/videos`·`resolve`의 `alreadyCommented`를 log 성공 기록으로 채움
 - [x] `features/log/log-table.tsx` — 하단 기록 테이블, 최신순, 실패 사유·캡처 링크 (Vitest 2개)
 - [x] verify: 같은 영상 2회 거부, 상한 도달 거부, 연속 3회 프로필 순환 (Jest), 시드 `log.json`으로 `GET /api/log` 응답 확인
-- [ ] verify (5단계 후): `POST /api/post`에서 실제로 409·429 응답
+- [x] verify: `POST /api/post` 진행 중 409 확인. 중복 영상 409·상한 429는 성공 기록이 생긴 뒤 확인
 
 ## 5. post 모듈 + 프로필 로그인 + ③ 패널
 
-- [ ] `post/poster.service.ts` — Playwright `launchPersistentContext`, 로그인 확인, 타이핑, 제출, 확인, 실패 캡처
-- [ ] `post/post.controller.ts` — `POST /api/post`, `GET /api/post/:jobId/events` (@Sse)
-- [ ] `post/profiles.controller.ts` — `GET /api/profiles`, `POST /api/profiles/:name/login`
-- [ ] 셀렉터 실제 DOM 확인 (한국어 화면)
-- [ ] `features/post/post-panel.tsx` — 진행 스텝 + 결과/실패 캡처 (EventSource)
-- [ ] verify: youtube1로 본인 채널 영상에 게시·확인까지, 로그아웃 프로필로 `not_logged_in` 캡처 생성
+- [x] `post/poster.service.ts` — Playwright `launchPersistentContext(channel: 'chrome')`, 로그인 확인, 댓글창 스크롤, 글자 단위 타이핑, 제출, 최상단 확인(실패 시 새로고침 1회), 실패 캡처
+- [x] `post/post.service.ts` — 규칙·검증 통과 시 작업 생성, ReplaySubject로 이벤트 중계, 동시 1개 제한(409), 결과 log.json 기록 (Jest 7개)
+- [x] `post/post.controller.ts` — `POST /api/post`, `GET /api/post/:jobId/events` (@Sse), `GET /api/screenshots/:file`
+- [x] `post/profiles.controller.ts` — `GET /api/profiles`(오늘 게시 수·프로필 폴더 유무), `POST /api/profiles/:name/login`
+- [x] 셀렉터 실제 DOM 확인 — 로그아웃 상태를 headless 프로브로 확인 (`#avatar-btn` 없음, `a[aria-label="로그인"]` 있음, `#contenteditable-root`·`#submit-button`은 클릭 후 생성)
+- [x] `features/post/post-panel.tsx` — 프로필 선택·로그인 버튼, 게시 버튼, 진행 스텝 4개, 실패 사유·캡처 (Vitest 2개)
+- [x] verify (로그아웃 프로필): 실제 영상에 게시 시도 → `opening` → `failed not_logged_in` SSE, 캡처 PNG 생성·제공, log.json에 failed 기록, 진행 중 두 번째 요청 409, 규칙 위반 400
+- [ ] verify (로그인 프로필): youtube1로 본인 채널 영상에 게시·확인까지 ← 구글 계정 로그인 후
+- [ ] 로그인 상태 셀렉터 확인 — `#contenteditable-root` 타이핑, `#submit-button`, 최상단 `#content-text` 비교
 
 ## 6. 프로필 3개 순환 배정
 

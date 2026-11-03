@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { FetchPanel } from '@/features/fetch/fetch-panel';
 import { LogTable } from '@/features/log/log-table';
+import { PostPanel } from '@/features/post/post-panel';
 import { SelectPanel } from '@/features/select/select-panel';
 import type { Draft, Video } from '@/shared/api';
 
@@ -33,10 +34,8 @@ export function App() {
 					}}
 					onCommentChange={setComment}
 				/>
-				<section className="panel">
-					<h2>③ 댓글 달기</h2>
-					{comment ? <p className="hint">게시 기능은 5단계에서 추가됩니다.</p> : <p className="hint">②에서 초안을 만들면 여기서 게시합니다.</p>}
-				</section>
+				{/* 영상이 바뀌면 진행 상태를 초기화하도록 key로 다시 마운트한다 */}
+				<PostPanel key={selected?.videoId ?? ''} selected={selected} comment={comment} rules={draft?.rules ?? null} />
 			</div>
 			<LogTable />
 		</main>
