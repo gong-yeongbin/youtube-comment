@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"target": "ES2024",
+		"lib": ["es2024"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"moduleDetection": "force",
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"types": ["node", "jest"],
+		"declaration": true,
+		"declarationMap": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"isolatedModules": false,
+		"removeComments": true,
+		"sourceMap": true,
+		"incremental": true,
+		"strictPropertyInitialization": false
+	}
+}
