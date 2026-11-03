@@ -1,4 +1,4 @@
-// ③ 댓글 달기 패널 — 프로필 선택·로그인, 게시 시작, SSE 진행 스텝, 실패 사유와 캡처 표시
+// ③ 댓글 달기 패널 — 프로필 선택·로그인, 게시 시작, SSE 진행 타임라인, 실패 사유와 캡처 표시
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { LOG_QUERY_KEY } from '@/features/log/log-table';
@@ -12,11 +12,13 @@ interface Props {
 }
 
 const STEPS: { type: Exclude<PostEvent['type'], 'failed'>; label: string }[] = [
-	{ type: 'opening', label: '크롬 프로필 열기' },
-	{ type: 'typing', label: '한 글자씩 입력' },
-	{ type: 'posted', label: '댓글 게시' },
-	{ type: 'verified', label: '목록에서 확인' },
+	{ type: 'opening', label: '프로필 여는 중' },
+	{ type: 'typing', label: '입력 중' },
+	{ type: 'posted', label: '게시 완료' },
+	{ type: 'verified', label: '댓글 보기' },
 ];
+
+const TERMINAL = (e: PostEvent) => e.type === 'verified' || e.type === 'failed';
 
 export function PostPanel({ selected, comment, rules }: Props) {
 	const queryClient = useQueryClient();
@@ -38,15 +40,14 @@ export function PostPanel({ selected, comment, rules }: Props) {
 			es.onmessage = (e: MessageEvent<string>) => {
 				const event = JSON.parse(e.data) as PostEvent;
 				setEvents((prev) => [...prev, event]);
-				if (event.type === 'verified' || event.type === 'failed') {
+				if (TERMINAL(event)) {
 					es.close();
-					void queryClient.invalidateQueries({ queryKey: LOG_QUERY_KEY });
-					void queryClient.invalidateQueries({ queryKey: ['profiles'] });
+					for (const key of [LOG_QUERY_KEY, ['profiles'], ['today']]) void queryClient.invalidateQueries({ queryKey: key });
 				}
 			};
 			es.onerror = () => {
 				es.close();
-				setEvents((prev) => (prev.some((ev) => ev.type === 'verified' || ev.type === 'failed') ? prev : [...prev, { type: 'failed', reason: 'connection_lost', message: '서버와 연결이 끊겼습니다.' }]));
+				setEvents((prev) => (prev.some(TERMINAL) ? prev : [...prev, { type: 'failed', reason: 'connection_lost', message: '서버와 연결이 끊겼습니다.' }]));
 			};
 		},
 	});
@@ -54,16 +55,21 @@ export function PostPanel({ selected, comment, rules }: Props) {
 	useEffect(() => () => source.current?.close(), []);
 
 	const violations = rules ? validateComment(comment, rules) : [];
-	const running = events.length > 0 && !events.some((e) => e.type === 'verified' || e.type === 'failed');
+	const running = events.length > 0 && !events.some(TERMINAL);
 	const canPost = !!selected && !!comment.trim() && !!rules && violations.length === 0 && !post.isPending && !running;
 	const failed = events.find((e) => e.type === 'failed');
+	const verified = events.some((e) => e.type === 'verified');
 	const doneIndex = STEPS.findLastIndex((s) => events.some((e) => e.type === s.type));
 
 	return (
 		<section className="panel">
-			<h2>③ 댓글 달기</h2>
+			<div className="panel-head">
+				<span className="num">③</span>
+				<h2>댓글 달기</h2>
+				<p className="lead">크롬이 열리고 직접 타이핑합니다</p>
+			</div>
 			{!selected || !rules ? (
-				<p className="hint">②에서 초안을 만들면 여기서 게시합니다.</p>
+				<p className="hint">②에서 초안이 준비되면 여기서 게시합니다.</p>
 			) : (
 				<>
 					<label className="draft-label">
@@ -91,20 +97,24 @@ export function PostPanel({ selected, comment, rules }: Props) {
 					</button>
 					{post.error && <p className="error">{post.error.message}</p>}
 					{events.length > 0 && (
-						<ol className="steps">
+						<ol className="timeline">
 							{STEPS.map((step, i) => {
 								const state = failed && i === doneIndex + 1 ? 'failed' : i <= doneIndex ? 'done' : running && i === doneIndex + 1 ? 'active' : 'pending';
 								const message = events.find((e) => e.type === step.type)?.message;
 								return (
 									<li key={step.type} className={state}>
-										<span>{step.label}</span>
-										{message && <small>{message}</small>}
+										<span className="dot">{state === 'done' ? '✓' : state === 'failed' ? '!' : ''}</span>
+										<span>
+											{step.label}
+											{message && <small>{message}</small>}
+										</span>
 									</li>
 								);
 							})}
 						</ol>
 					)}
 					{assigned && events.length > 0 && <p className="hint">사용 프로필: {assigned}</p>}
+					{verified && <p className="success-note">댓글이 영상 댓글 목록 최상단에서 확인됐습니다.</p>}
 					{failed && failed.type === 'failed' && (
 						<div className="failure">
 							<p className="error">

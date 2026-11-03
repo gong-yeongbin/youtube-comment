@@ -10,6 +10,7 @@ const video: Video = { videoId: 'dQw4w9WgXcQ', url: '', title: '썸남이 연락
 const draft: Draft = {
 	videoId: video.videoId,
 	concern: '썸 상대의 연락 빈도가 줄어 불안함',
+	evidence: '"답장이 세 시간 걸리면 하루가 망해요"라는 말',
 	comment: '답장 세 시간 걸리면 하루 망한다는 말 진짜 공감이에요. 운명원 연애사주가 잘 본다던데 나도 보고 싶다',
 	violations: [],
 	hasTranscript: true,
@@ -32,6 +33,7 @@ describe('SelectPanel', () => {
 	it('초안이 있으면 고민·초안·자막·공백 제외 글자 수를 보여 준다', () => {
 		render(<Harness />);
 		expect(screen.getByText(draft.concern)).toBeTruthy();
+		expect(screen.getByText(draft.evidence)).toBeTruthy();
 		expect(screen.getByDisplayValue(draft.comment)).toBeTruthy();
 		expect(screen.getByText('자막 사용 (ko)')).toBeTruthy();
 		expect(screen.getByText(/^공백 제외 \d+자 \/ 40~120자$/)).toBeTruthy();

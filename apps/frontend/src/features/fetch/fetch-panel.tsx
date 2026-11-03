@@ -1,4 +1,4 @@
-// ① 영상 불러오기 패널 — 검색 버튼, 링크 직접 입력, 영상 목록(선택 가능)
+// ① 영상 불러오기 패널 — 검색 버튼, 링크 직접 입력, 썸네일 2열 그리드(선택 가능)
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { fetchVideos, resolveVideo, type Video } from '@/shared/api';
@@ -26,8 +26,12 @@ export function FetchPanel({ selected, onSelect }: Props) {
 
 	return (
 		<section className="panel">
-			<h2>① 영상 불러오기</h2>
-			<button type="button" onClick={() => search.mutate()} disabled={search.isPending}>
+			<div className="panel-head">
+				<span className="num">①</span>
+				<h2>영상 불러오기</h2>
+				<p className="lead">버튼 한 번에 최신 영상</p>
+			</div>
+			<button type="button" className="primary" onClick={() => search.mutate()} disabled={search.isPending}>
 				{search.isPending ? '불러오는 중…' : '연애 고민 영상 불러오기'}
 			</button>
 			<form
@@ -43,16 +47,19 @@ export function FetchPanel({ selected, onSelect }: Props) {
 				</button>
 			</form>
 			{error && <p className="error">{error.message}</p>}
-			<ul className="video-list">
+			{videos.length > 0 && <p className="hint">{videos.length}개 · 고르면 ②에서 초안이 바로 만들어집니다</p>}
+			<ul className="video-grid">
 				{videos.map((video) => (
 					<li key={video.videoId}>
-						<button type="button" className={video.videoId === selected?.videoId ? 'video selected' : 'video'} onClick={() => onSelect(video)}>
-							<img src={video.thumbnail} alt="" />
+						<button type="button" className={video.videoId === selected?.videoId ? 'video-card selected' : 'video-card'} onClick={() => onSelect(video)}>
+							<span className="thumb">
+								<img src={video.thumbnail} alt="" />
+								{video.alreadyCommented && <span className="tag">댓글 완료</span>}
+							</span>
 							<span className="meta">
 								<strong>{video.title}</strong>
 								<small>
 									{video.channelTitle} · {new Date(video.publishedAt).toLocaleDateString('ko-KR')} · 조회 {video.viewCount.toLocaleString('ko-KR')}
-									{video.alreadyCommented && ' · 댓글 완료'}
 								</small>
 							</span>
 						</button>

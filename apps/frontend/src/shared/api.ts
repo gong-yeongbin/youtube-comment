@@ -32,6 +32,7 @@ export function resolveVideo(url: string): Promise<Video> {
 export interface Draft {
 	videoId: string;
 	concern: string;
+	evidence: string;
 	comment: string;
 	violations: string[];
 	hasTranscript: boolean;
@@ -57,6 +58,10 @@ export interface LogEntry {
 
 export function fetchLog(): Promise<LogEntry[]> {
 	return request<LogEntry[]>('/log');
+}
+
+export function fetchToday(): Promise<{ count: number; max: number }> {
+	return request('/today');
 }
 
 export interface Profile {

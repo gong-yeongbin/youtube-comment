@@ -1,11 +1,23 @@
-// 대시보드 루트 — 세 칸(영상 불러오기 → 영상 선택 → 댓글 달기) 레이아웃 + 하단 기록 테이블. 영상을 고르면 초안을 바로 생성한다
-import { useMutation } from '@tanstack/react-query';
+// 대시보드 루트 — 상단(제목·오늘 게시 배지) + 진행 띠 + 세 칸 + 기록. 영상을 고르면 초안을 바로 생성한다
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FetchPanel } from '@/features/fetch/fetch-panel';
 import { LogTable } from '@/features/log/log-table';
 import { PostPanel } from '@/features/post/post-panel';
 import { SelectPanel } from '@/features/select/select-panel';
-import { createDraft, type Draft, type Video } from '@/shared/api';
+import { createDraft, fetchToday, type Draft, type Video } from '@/shared/api';
+
+export const TODAY_QUERY_KEY = ['today'];
+
+function TodayBadge() {
+	const { data } = useQuery({ queryKey: TODAY_QUERY_KEY, queryFn: fetchToday });
+	if (!data) return null;
+	return (
+		<p className={data.count >= data.max ? 'today full' : 'today'}>
+			오늘 게시 <strong>{data.count}</strong> / {data.max}
+		</p>
+	);
+}
 
 export function App() {
 	const [selected, setSelected] = useState<Video | null>(null);
@@ -28,9 +40,33 @@ export function App() {
 		generate.mutate(video.videoId);
 	};
 
+	const step = !selected ? 1 : !draft ? 2 : 3;
+	const flowClass = (n: number) => (n === step ? 'active' : n < step ? 'done' : '');
+
 	return (
 		<main>
-			<h1>유튜브 댓글 에이전트</h1>
+			<header className="top">
+				<div>
+					<h1>
+						<em>운명원</em> 댓글 에이전트
+					</h1>
+					<p className="tagline">연애 고민 영상을 고르면, 그 영상을 본 사람의 말로 댓글을 쓰고 크롬에서 직접 올립니다.</p>
+				</div>
+				<TodayBadge />
+			</header>
+
+			<ol className="flow">
+				<li className={flowClass(1)}>
+					<span className="num">1</span>영상 불러오기
+				</li>
+				<li className={flowClass(2)}>
+					<span className="num">2</span>영상 선택 · 초안
+				</li>
+				<li className={flowClass(3)}>
+					<span className="num">3</span>댓글 달기
+				</li>
+			</ol>
+
 			<div className="panels">
 				<FetchPanel selected={selected} onSelect={select} />
 				<SelectPanel

@@ -35,9 +35,9 @@ beforeEach(() => generateContent.mockReset());
 
 describe('GeminiService.draft', () => {
 	it('규칙을 지키면 한 번만 호출한다', async () => {
-		generateContent.mockResolvedValueOnce({ text: JSON.stringify({ concern: '연락 텀', comment: good }) });
+		generateContent.mockResolvedValueOnce({ text: JSON.stringify({ concern: '연락 텀', evidence: '답장 세 시간 발언', comment: good }) });
 		const result = await makeService().draft(input);
-		expect(result).toEqual({ concern: '연락 텀', comment: good, violations: [] });
+		expect(result).toEqual({ concern: '연락 텀', evidence: '답장 세 시간 발언', comment: good, violations: [] });
 		expect(generateContent).toHaveBeenCalledTimes(1);
 	});
 

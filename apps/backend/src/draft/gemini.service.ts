@@ -14,14 +14,15 @@ export interface DraftInput {
 
 export interface DraftResult {
 	concern: string;
+	evidence: string;
 	comment: string;
 	violations: string[];
 }
 
 const RESPONSE_SCHEMA = {
 	type: 'object',
-	properties: { concern: { type: 'string' }, comment: { type: 'string' } },
-	required: ['concern', 'comment'],
+	properties: { concern: { type: 'string' }, evidence: { type: 'string' }, comment: { type: 'string' } },
+	required: ['concern', 'evidence', 'comment'],
 };
 
 @Injectable()
@@ -51,7 +52,7 @@ export class GeminiService {
 		return { ...second, violations };
 	}
 
-	private async generate(input: DraftInput, rules: CommentRules, retry?: { previous: string; violations: string[] }): Promise<{ concern: string; comment: string }> {
+	private async generate(input: DraftInput, rules: CommentRules, retry?: { previous: string; violations: string[] }): Promise<{ concern: string; evidence: string; comment: string }> {
 		const client = this.getClient();
 		const model = this.config.getOrThrow<string>('gemini.model');
 
@@ -73,9 +74,9 @@ export class GeminiService {
 		}
 
 		try {
-			const parsed = JSON.parse(text ?? '') as { concern?: unknown; comment?: unknown };
+			const parsed = JSON.parse(text ?? '') as { concern?: unknown; evidence?: unknown; comment?: unknown };
 			if (typeof parsed.concern !== 'string' || typeof parsed.comment !== 'string') throw new Error('필드 누락');
-			return { concern: parsed.concern.trim(), comment: parsed.comment.trim() };
+			return { concern: parsed.concern.trim(), evidence: typeof parsed.evidence === 'string' ? parsed.evidence.trim() : '', comment: parsed.comment.trim() };
 		} catch {
 			this.logger.warn(`Gemini 응답 해석 실패: ${text ?? '(빈 응답)'}`);
 			throw new HttpException('Gemini 응답을 해석하지 못했습니다. 다시 시도하세요.', 502);
@@ -94,8 +95,9 @@ export class GeminiService {
 			`- '${rules.brand}' 연애사주를 직접 써본 후기처럼 쓰지 않는다. "써봤는데", "봤더니", "받아봤" 같은 표현 금지.`,
 			`- 대신 "${rules.brand} 연애사주가 잘 본다던데 나도 보고 싶다" 식으로, 영상 속 고민과 연결해 간접적으로 궁금해하는 말투로 유도한다.`,
 			'- concern에는 영상 속 연애 고민을 한 문장으로 요약한다.',
+			'- evidence에는 댓글이 언급한 영상 속 장면이나 말을 한 문장으로 적는다. 자막·설명·댓글에 실제로 있는 내용만 쓴다.',
 			'',
-			'출력은 JSON 하나: {"concern": "...", "comment": "..."}',
+			'출력은 JSON 하나: {"concern": "...", "evidence": "...", "comment": "..."}',
 			'',
 			'예시.',
 			examples,

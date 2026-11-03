@@ -9,7 +9,11 @@ export function LogTable() {
 
 	return (
 		<section className="panel log-panel">
-			<h2>기록</h2>
+			<div className="panel-head">
+				<span className="num">✦</span>
+				<h2>게시 기록</h2>
+				<p className="lead">어느 영상에 · 어느 프로필로 · 무슨 댓글을 · 결과</p>
+			</div>
 			{isPending && <p className="hint">불러오는 중…</p>}
 			{error && <p className="error">{error.message}</p>}
 			{data && data.length === 0 && <p className="hint">아직 게시 기록이 없습니다.</p>}

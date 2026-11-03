@@ -49,9 +49,9 @@ pnpm dev
 ### 시연 흐름
 
 1. ① "연애 고민 영상 불러오기" 또는 링크 붙여넣기 → 영상 클릭
-2. ② 영상을 고르면 고민 한 줄과 초안이 자동으로 생성된다. 필요하면 수정. 공백 제외 글자 수와 규칙 위반이 실시간으로 표시된다
+2. ② 영상을 고르면 영상 속 고민 한 줄, 근거 장면, 초안이 자동으로 생성된다. 필요하면 수정. 공백 제외 글자 수와 규칙 위반이 실시간으로 표시된다
 3. ③ 프로필 선택(비우면 자동 배정) → "댓글 게시" → 크롬이 열리고 타이핑·게시·확인 단계가 진행된다
-4. 하단 기록 테이블에 결과가 남는다. 실패하면 사유와 그 순간 캡처가 붙는다
+4. 하단 기록 테이블에 결과가 남고 상단 "오늘 게시 N/10" 배지가 갱신된다. 실패하면 사유와 그 순간 캡처가 붙는다
 
 테스트 댓글은 본인 채널 영상에 달고 확인 후 지운다.
 
@@ -95,10 +95,11 @@ apps/frontend/src/
 |---|---|---|
 | GET | `/api/videos?q=` | 키워드 최신순 검색 (`alreadyCommented` 포함) |
 | POST | `/api/videos/resolve` | 링크 → 영상 정보 |
-| POST | `/api/draft` | 초안 생성 `{concern, comment, violations, hasTranscript}` |
+| POST | `/api/draft` | 초안 생성 `{concern, evidence, comment, violations, hasTranscript}` |
 | POST | `/api/post` | 게시 작업 시작, `jobId` 반환 |
 | GET | `/api/post/:jobId/events` | SSE: `opening → typing → posted → verified` 또는 `failed` |
 | GET | `/api/log` | 게시 기록 |
+| GET | `/api/today` | 오늘(KST) 게시 수와 상한 |
 | GET | `/api/profiles` | 프로필과 오늘 게시 수 |
 | POST | `/api/profiles/:name/login` | 로그인용 크롬 열기 |
 
