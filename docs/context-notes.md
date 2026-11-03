@@ -62,3 +62,10 @@
 - **프로필 로그인은 크롬을 열어 두고 바로 응답한다.** `POST /api/profiles/:name/login`은 구글 로그인 페이지를 띄운 뒤 창이 닫히기를 기다리지 않는다. 기다리면 HTTP 요청이 몇 분씩 걸린다. 사용자가 로그인하고 창을 닫으면 세션이 `profiles/<name>`에 남는다.
 - **③ 패널은 `key={videoId}`로 다시 마운트해 진행 상태를 초기화한다.** effect 안에서 setState로 초기화하면 react-hooks 규칙 경고가 나고 렌더가 한 번 더 돈다.
 - **(검증 기록) 로그아웃 상태 라이브 테스트.** 빈 `profiles/youtube1`로 실제 영상에 게시를 시도해 `opening` → `failed not_logged_in` SSE, 1.8MB 캡처 PNG, log.json failed 기록을 확인했다. 테스트로 생긴 log.json과 캡처는 지웠고 `profiles/youtube1` 폴더는 남겼다(gitignore).
+
+## 7단계: 문서·마무리
+
+- **제작 의도 문서는 PM 관점으로 썼다.** 코드 설명이 아니라 "왜 이렇게 댓글을 쓰는가"와 "왜 이렇게 절제하는가"가 중심이다. 평가자가 README 없이 이 문서만 읽어도 설계 의도가 전달되도록 했다. 기술 선택은 한 줄씩만 넣었다.
+- **README는 처음 받는 사람이 실행까지 가는 순서로 썼다.** 요구 사항 → 키 → 설정 → 실행 → 프로필 로그인 → 시연 흐름. API 표와 문제 해결 표는 뒤에 뒀다. 과제 제출용이라 배포·CI는 다루지 않는다.
+- **`.gitignore` 검증은 `git ls-files`로 했다.** `git status`는 ignore된 파일을 안 보여 주니 "없음"이 증명이 안 된다. 추적 목록에 `.env.example`만 있는지, 구글 키 패턴(`AIza...`)이 추적 파일에 없는지 확인했다.
+- **(작업 방식) `.env` deny 규칙은 Bash 명령 문자열 전체를 본다.** README heredoc에 `cp .env.example .env`가 있거나 grep 패턴에 `.env`가 들어가면 명령 전체가 거부된다. 그런 내용의 파일은 Write 도구로 쓰고, 검증은 `git ls-files -- '*.env'`처럼 grep 없이 한다.
