@@ -31,7 +31,7 @@ profiles: [youtube1, youtube2, youtube3]   # 크롬 프로필 이름 (profiles/<
 comment: { min_chars: 40, max_chars: 120, brand: 운명원 }
 limits: { daily_max_comments: 10 }          # 하루 게시 상한 (KST 기준)
 search: { query: "연애 고민", max_results: 20 }
-gemini: { model: gemini-3.8-flash }
+gemini: { model: gemini-2.5-flash }
 ```
 
 ## 실행

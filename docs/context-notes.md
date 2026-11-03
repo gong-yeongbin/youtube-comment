@@ -69,3 +69,4 @@
 - **README는 처음 받는 사람이 실행까지 가는 순서로 썼다.** 요구 사항 → 키 → 설정 → 실행 → 프로필 로그인 → 시연 흐름. API 표와 문제 해결 표는 뒤에 뒀다. 과제 제출용이라 배포·CI는 다루지 않는다.
 - **`.gitignore` 검증은 `git ls-files`로 했다.** `git status`는 ignore된 파일을 안 보여 주니 "없음"이 증명이 안 된다. 추적 목록에 `.env.example`만 있는지, 구글 키 패턴(`AIza...`)이 추적 파일에 없는지 확인했다.
 - **(작업 방식) `.env` deny 규칙은 Bash 명령 문자열 전체를 본다.** README heredoc에 `cp .env.example .env`가 있거나 grep 패턴에 `.env`가 들어가면 명령 전체가 거부된다. 그런 내용의 파일은 Write 도구로 쓰고, 검증은 `git ls-files -- '*.env'`처럼 grep 없이 한다.
+- **Gemini 모델명을 `gemini-2.5-flash`로 되돌렸다 (2026-11-03).** 3단계에서 AI Studio 화면 기준으로 `gemini-3.8-flash`로 바꿨었는데, 사용자가 PLAN.md 기본값인 2.5-flash를 쓰기로 결정했다. API에서 모델명이 거부되면 `config.yaml` 한 줄만 바꾸면 된다.

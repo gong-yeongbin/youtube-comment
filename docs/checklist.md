@@ -35,7 +35,7 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 - [x] `draft/examples.ts` — few-shot 예시 3개 (임시. 과제 원문 예시로 교체 필요)
 - [x] `youtube.service.ts` `comments()` — 인기 댓글 10개, 댓글 막힌 영상은 빈 배열
 - [x] `draft/draft.controller.ts` — `POST /api/draft`
-- [x] `config.yaml` gemini.model → `gemini-3.8-flash`
+- [x] `config.yaml` gemini.model → `gemini-2.5-flash` (3.8-flash로 바꿨다가 사용자 결정으로 되돌림)
 - [x] `features/select/select-panel.tsx` — 고민 한 줄 + 초안(수정 가능) + 글자 수·검증 표시 + 자막 유무 (Vitest 3개)
 - [x] `shared/comment-rules.ts` — 백엔드와 같은 규칙 (클라이언트 즉시 표시용)
 - [x] verify (키 없음): 자막 라이브러리 실제 영상으로 수신 확인, `POST /api/draft` 400/503 응답
@@ -79,7 +79,7 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 ## 남은 수동 검증 (키·계정 입력 후)
 
 - [ ] ① 버튼 한 번에 실제 영상 목록 표시 (YouTube 키)
-- [ ] ② 영상 3개로 서로 다른 초안, `gemini-3.8-flash` 모델명 유효 (Gemini 키)
+- [ ] ② 영상 3개로 서로 다른 초안, `gemini-2.5-flash` 모델명 유효 (Gemini 키)
 - [ ] ③ youtube1 로그인 후 본인 채널 영상에 게시·확인까지. 로그인 상태 셀렉터 확인
 - [ ] 연속 3회 게시 시 프로필이 1 → 2 → 3으로 돌아감
 - [ ] 같은 영상 재게시 409, 상한 429 (성공 기록이 생긴 뒤)
