@@ -30,7 +30,7 @@ GEMINI_API_KEY=발급받은_키
 profiles: [youtube1, youtube2, youtube3]   # 크롬 프로필 이름 (profiles/<이름> 폴더)
 comment: { min_chars: 40, max_chars: 120, brand: 운명원 }
 limits: { daily_max_comments: 10 }          # 하루 게시 상한 (KST 기준)
-search: { query: "연애 고민", max_results: 20 }
+search: { query: "연애 고민", max_results: 50 }
 gemini: { model: gemini-2.5-flash }
 ```
 
