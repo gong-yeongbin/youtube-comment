@@ -1,0 +1,25 @@
+{
+	"permissions": {
+		"deny": [
+			"Read(./apps/backend/.env)",
+			"Edit(./apps/backend/.env)",
+			"Bash(cat *apps/backend/.env*)",
+			"Bash(cat *.env)",
+			"Bash(head *.env)",
+			"Bash(tail *.env)",
+			"Bash(less *.env)",
+			"Bash(more *.env)",
+			"Bash(sed *.env)",
+			"Bash(awk *.env)",
+			"Bash(grep *.env)",
+			"Bash(open *.env)",
+			"Bash(source *.env)",
+			"Bash(. *.env)",
+			"Bash(export $(*)",
+			"Bash(cp *.env *)",
+			"Bash(mv *.env *)",
+			"Bash(* > *apps/backend/.env)",
+			"Bash(* >> *apps/backend/.env)"
+		]
+	}
+}
