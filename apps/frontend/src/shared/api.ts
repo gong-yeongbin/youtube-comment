@@ -42,3 +42,19 @@ export interface Draft {
 export function createDraft(videoId: string): Promise<Draft> {
 	return request<Draft>('/draft', { method: 'POST', body: JSON.stringify({ videoId }) });
 }
+
+export interface LogEntry {
+	id: string;
+	at: string;
+	videoId: string;
+	videoTitle: string;
+	profile: string;
+	comment: string;
+	status: 'success' | 'failed';
+	reason?: string;
+	screenshot?: string;
+}
+
+export function fetchLog(): Promise<LogEntry[]> {
+	return request<LogEntry[]>('/log');
+}

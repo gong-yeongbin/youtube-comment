@@ -37,3 +37,14 @@
 - **인기 댓글 조회 실패(댓글 비활성 등)는 빈 배열로 삼킨다.** 댓글은 초안 품질 보조 자료라 없어도 생성은 되어야 한다. 단 할당량 초과(429)와 키 없음(503)은 그대로 던진다.
 - **② 패널의 프로필 선택은 5단계로 미뤘다.** 프로필 목록·오늘 게시 수를 주는 `GET /api/profiles`가 post 모듈에 속해서다.
 - **(작업 방식) 병렬 Bash 호출에서 `cd`를 쓰면 섞인다.** 세 호출을 동시에 보냈더니 한 호출의 `cd apps/frontend`가 다른 호출의 `pnpm dev`에 적용돼 프론트만 떴다. 이후로는 `pnpm -C <절대경로>`를 쓴다.
+
+## 4단계: log·rules 모듈 + 기록 테이블
+
+- **`LogModule`은 `@Global()`이다.** rules·youtube·post 세 모듈이 모두 `LogService`를 쓰므로 매번 import하는 것보다 전역이 짧다. 전역 모듈은 이것 하나뿐이다.
+- **log.json 경로는 `@Optional() @Inject(LOG_PATH)` 토큰으로 주입한다.** 기본값은 config.yaml과 같은 방식으로 `__dirname` 4단계 위 `data/log.json`이고, 테스트에서는 `new LogService(tmpPath)`로 임시 파일을 쓴다. Nest DI에서 `string` 기본 매개변수는 해석이 안 돼 토큰이 필요하다.
+- **파일 I/O는 동기 함수다.** 로컬 시연용이고 기록이 수십 건이라 비동기로 만들 이유가 없다. 매 append마다 전체를 읽고 다시 쓴다.
+- **중복은 409, 상한은 429로 구분한다.** PLAN.md는 "거부"라고만 했는데 프론트가 사유를 구분해 보여 주려면 상태 코드가 달라야 한다. 실패 기록은 중복·상한 어디에도 세지 않아 재시도가 된다.
+- **KST 날짜는 `toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })`로 구한다.** dayjs 같은 의존성 없이 `YYYY-MM-DD`가 나온다. 테스트로 UTC 15:30이 KST 다음 날로 넘어가는 것을 고정했다.
+- **라운드로빈은 "성공 기록이 가장 적은 프로필"이다.** 마지막 사용 프로필의 다음 것을 고르는 방식은 로그아웃된 프로필이 하나 있으면 두 번에 한 번 실패한다. 동률이면 config 순서라 처음 세 번은 youtube1 → 2 → 3으로 돈다.
+- **`alreadyCommented`는 VideosController에서 채운다.** `YoutubeService.videos()`는 API 응답 변환만 하고 로그를 모르게 두었다. draft 단계에서 같은 함수를 쓰는데 거기서는 이 값이 필요 없다.
+- **시드 `data/log.json`은 확인 후 지웠다.** 남겨 두면 `dQw4w9WgXcQ`가 "댓글 완료"로 보이고 오늘 상한에 1개가 세진다.

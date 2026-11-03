@@ -25,7 +25,7 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 - [x] FetchPanel Vitest 렌더 테스트 (목록 표시, 오류 표시)
 - [x] verify (키 없음): `GET /api/videos` 503, 잘못된 링크 400, 프론트 오류 메시지 표시
 - [ ] verify (키 있음): 버튼 한 번에 목록 표시 ← `.env`에 YOUTUBE_API_KEY 넣은 뒤
-- [ ] `alreadyCommented`를 log.json 기준으로 채우기 ← 4단계에서
+- [x] `alreadyCommented`를 log.json 기준으로 채우기 (4단계에서 완료)
 
 ## 3. draft 모듈 + ② 패널
 
@@ -45,11 +45,13 @@ PLAN.md "작업 순서"를 단계별 체크박스로 옮긴 것. 각 단계는 v
 
 ## 4. log·rules 모듈 + 기록 테이블
 
-- [ ] `log/log.service.ts` — `data/log.json` append/read, `log.controller.ts` — `GET /api/log`
-- [ ] `rules/rules.service.ts` — 영상당 1개, 하루(KST) 상한, 프로필 순환
-- [ ] RulesService Jest 유닛 테스트 (중복·상한·순환)
-- [ ] 하단 기록 테이블
-- [ ] verify: 같은 영상 2회 요청 거부, 상한 도달 시 거부
+- [x] `log/log.service.ts` — `data/log.json` append/read, 디렉토리 자동 생성 (Jest 2개)
+- [x] `log/log.controller.ts` — `GET /api/log`, `LogModule`은 `@Global()`
+- [x] `rules/rules.service.ts` — 영상당 1개(409), 하루(KST) 상한(429), 프로필 라운드로빈, 지정 프로필 검증 (Jest 10개)
+- [x] `GET /api/videos`·`resolve`의 `alreadyCommented`를 log 성공 기록으로 채움
+- [x] `features/log/log-table.tsx` — 하단 기록 테이블, 최신순, 실패 사유·캡처 링크 (Vitest 2개)
+- [x] verify: 같은 영상 2회 거부, 상한 도달 거부, 연속 3회 프로필 순환 (Jest), 시드 `log.json`으로 `GET /api/log` 응답 확인
+- [ ] verify (5단계 후): `POST /api/post`에서 실제로 409·429 응답
 
 ## 5. post 모듈 + 프로필 로그인 + ③ 패널
 

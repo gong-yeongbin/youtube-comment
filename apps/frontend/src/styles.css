@@ -151,3 +151,33 @@ textarea {
 	resize: vertical;
 	line-height: 1.5;
 }
+.log-panel {
+	margin-top: 16px;
+	min-height: 0;
+}
+.log-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+.log-table th,
+.log-table td {
+	text-align: left;
+	padding: 8px;
+	border-bottom: 1px solid #e5e7eb;
+	vertical-align: top;
+}
+.log-table th {
+	color: #6b7280;
+	font-weight: 500;
+}
+.log-table tr.failed td {
+	background: #fef2f2;
+}
+.log-table .comment-cell {
+	max-width: 480px;
+	white-space: pre-wrap;
+}
+.log-table a {
+	color: #2563eb;
+}

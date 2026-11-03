@@ -1,6 +1,7 @@
 // 대시보드 루트 — 세 칸(영상 불러오기 → 영상 선택 → 댓글 달기) 레이아웃 + 하단 기록 테이블
 import { useState } from 'react';
 import { FetchPanel } from '@/features/fetch/fetch-panel';
+import { LogTable } from '@/features/log/log-table';
 import { SelectPanel } from '@/features/select/select-panel';
 import type { Draft, Video } from '@/shared/api';
 
@@ -37,6 +38,7 @@ export function App() {
 					{comment ? <p className="hint">게시 기능은 5단계에서 추가됩니다.</p> : <p className="hint">②에서 초안을 만들면 여기서 게시합니다.</p>}
 				</section>
 			</div>
+			<LogTable />
 		</main>
 	);
 }

@@ -3,10 +3,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { ConfigModule } from './config/config.module.js';
 import { DraftModule } from './draft/draft.module.js';
+import { LogModule } from './log/log.module.js';
+import { RulesModule } from './rules/rules.module.js';
 import { YoutubeModule } from './youtube/youtube.module.js';
 
 @Module({
-	imports: [ConfigModule, YoutubeModule, DraftModule],
+	imports: [ConfigModule, LogModule, RulesModule, YoutubeModule, DraftModule],
 	controllers: [AppController],
 })
 export class AppModule {}
