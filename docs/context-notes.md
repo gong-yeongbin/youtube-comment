@@ -24,3 +24,16 @@
 - **backend `incremental`을 껐다.** nest-cli `deleteOutDir: true`가 dist를 지우는데 tsc는 `tsconfig.tsbuildinfo`를 보고 "안 바뀐 파일"의 emit을 건너뛰어, 두 번째 `pnpm dev`부터 `app.controller.js` 등이 dist에 없어 기동이 실패했다. 모노레포 설정에는 `incremental: true`가 있었지만 여기서는 재현되는 문제라 뺐다.
 - **Jest에 `moduleNameMapper: {"^(\\.{1,2}/.*)\\.js$": "$1"}`를 추가했다.** NodeNext 때문에 import 경로에 `.js`를 붙이는데 ts-jest는 이를 `.ts`로 되돌리지 못한다. 모노레포는 경로 별칭만 매핑하고 `.js` import를 쓰지 않아 없던 설정이다.
 - **ValidationPipe·DTO 없이 컨트롤러에서 직접 검사한다.** 입력이 `q` 문자열 하나와 `url` 하나라 class-validator를 들이는 비용이 더 크다. 입력이 늘어나는 5단계(`/api/post`)에서 필요해지면 그때 도입한다.
+
+## 3단계: draft 모듈 + ② 패널
+
+- **Gemini 모델명을 `gemini-3.8-flash`로 바꿨다.** PLAN.md는 `gemini-2.5-flash`로 시작해 실행 시 최신 flash로 교체하라고 했고, 2026-11-03 AI Studio 화면에 최신 flash가 `gemini-3.8-flash`로 표시됐다. API 키 없이 유효성은 확인하지 못했으니 404가 나면 `config.yaml` 한 줄만 바꾸면 된다.
+- **few-shot 예시는 내가 쓴 임시본이다.** PLAN.md가 말하는 "과제의 예시 댓글"을 갖고 있지 않아 `draft/examples.ts`에 같은 형식으로 3개를 썼다. 원문을 받으면 그 파일만 교체한다.
+- **검증 규칙에 "브랜드 언급 필수"를 넣었다.** PLAN.md 목록(길이·링크·해시태그·후기 패턴)에는 없지만 운명원을 언급하지 않는 댓글은 과제 목적을 못 이루므로 위반으로 본다. 후기 패턴은 "써봤·봤더니·받아봤·보고 왔·해봤·이용해·결제"로 잡고, "봤는데"는 영상을 봤다는 말과 겹쳐 뺐다.
+- **재생성 후에도 위반이면 그대로 돌려주고 `violations`에 담는다.** 세 번째 호출은 하지 않는다. UI가 위반을 보여 주고 사용자가 수정하면 되고, 5단계 게시 전에 서버가 같은 규칙으로 다시 막는다.
+- **검증 규칙 함수가 백엔드·프론트에 하나씩 있다.** 공유 패키지를 만들 규모가 아니라 같은 내용을 두 곳에 두고 헤더 주석으로 서로를 가리킨다. 규칙 값(min/max/brand)은 `/api/draft` 응답의 `rules`로 내려보내 프론트에 하드코딩하지 않는다.
+- **응답 형식은 `responseJsonSchema`로 강제한다.** `@google/genai` 2.32의 `generateContent` config에 `responseMimeType: 'application/json'`과 JSON 스키마를 같이 주면 `res.text`가 바로 파싱 가능한 JSON이다. 그래도 파싱 실패는 502로 보낸다.
+- **`youtube-transcript-plus` 타입을 직접 캐스팅했다.** 패키지가 `type: module`인데 `index.d.ts`가 확장자 없는 `./types` import를 써서 NodeNext에서 `TranscriptSegment`가 풀리지 않고 `any`가 된다. `fetchTranscript`를 `(videoId, {lang}) => Promise<{text: string}[]>`로 캐스팅해 필요한 형태만 쓴다. 라이브 호출은 `dQw4w9WgXcQ`로 61개 세그먼트 수신을 확인했다.
+- **인기 댓글 조회 실패(댓글 비활성 등)는 빈 배열로 삼킨다.** 댓글은 초안 품질 보조 자료라 없어도 생성은 되어야 한다. 단 할당량 초과(429)와 키 없음(503)은 그대로 던진다.
+- **② 패널의 프로필 선택은 5단계로 미뤘다.** 프로필 목록·오늘 게시 수를 주는 `GET /api/profiles`가 post 모듈에 속해서다.
+- **(작업 방식) 병렬 Bash 호출에서 `cd`를 쓰면 섞인다.** 세 호출을 동시에 보냈더니 한 호출의 `cd apps/frontend`가 다른 호출의 `pnpm dev`에 적용돼 프론트만 떴다. 이후로는 `pnpm -C <절대경로>`를 쓴다.

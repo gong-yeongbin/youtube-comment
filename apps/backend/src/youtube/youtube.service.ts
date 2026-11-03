@@ -24,6 +24,10 @@ interface VideoItem {
 	statistics?: { viewCount?: string };
 }
 
+interface CommentThreadItem {
+	snippet: { topLevelComment: { snippet: { textOriginal: string } } };
+}
+
 interface ApiError {
 	error?: { code?: number; message?: string; errors?: { reason?: string }[] };
 }
@@ -65,6 +69,23 @@ export class YoutubeService {
 			description: item.snippet.description,
 			alreadyCommented: false,
 		}));
+	}
+
+	/** 인기 댓글 상위 10개 원문. 댓글이 막힌 영상이면 빈 배열 */
+	async comments(videoId: string): Promise<string[]> {
+		try {
+			const data = await this.get<{ items: CommentThreadItem[] }>('commentThreads', {
+				part: 'snippet',
+				videoId,
+				order: 'relevance',
+				maxResults: '10',
+				textFormat: 'plainText',
+			});
+			return data.items.map((item) => item.snippet.topLevelComment.snippet.textOriginal);
+		} catch (error) {
+			if (error instanceof HttpException && error.getStatus() === 502) return [];
+			throw error;
+		}
 	}
 
 	private async get<T>(resource: string, params: Record<string, string>): Promise<T> {

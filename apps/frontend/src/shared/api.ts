@@ -28,3 +28,17 @@ export function fetchVideos(q?: string): Promise<Video[]> {
 export function resolveVideo(url: string): Promise<Video> {
 	return request<Video>('/videos/resolve', { method: 'POST', body: JSON.stringify({ url }) });
 }
+
+export interface Draft {
+	videoId: string;
+	concern: string;
+	comment: string;
+	violations: string[];
+	hasTranscript: boolean;
+	transcriptLang: string | null;
+	rules: { minChars: number; maxChars: number; brand: string };
+}
+
+export function createDraft(videoId: string): Promise<Draft> {
+	return request<Draft>('/draft', { method: 'POST', body: JSON.stringify({ videoId }) });
+}
