@@ -8,11 +8,17 @@ export interface CommentRules {
 const LINK = /https?:\/\/|www\.|\.com|\.kr|\.net/i;
 const REVIEW_PATTERNS = ['써봤', '써 봤', '봤더니', '받아봤', '받아 봤', '보고 왔', '보고왔', '해봤', '해 봤', '이용해', '결제'];
 
+/** 글자 수는 공백을 제외하고 센다 (과제 예시 댓글이 공백 포함 139자, 제외 104자) */
+export function countChars(text: string): number {
+	return text.replace(/\s/g, '').length;
+}
+
 export function validateComment(comment: string, rules: CommentRules): string[] {
 	const text = comment.trim();
+	const length = countChars(text);
 	const violations: string[] = [];
-	if (text.length < rules.minChars) violations.push(`${rules.minChars}자 이상이어야 합니다 (현재 ${text.length}자)`);
-	if (text.length > rules.maxChars) violations.push(`${rules.maxChars}자 이하여야 합니다 (현재 ${text.length}자)`);
+	if (length < rules.minChars) violations.push(`공백 제외 ${rules.minChars}자 이상이어야 합니다 (현재 ${length}자)`);
+	if (length > rules.maxChars) violations.push(`공백 제외 ${rules.maxChars}자 이하여야 합니다 (현재 ${length}자)`);
 	if (LINK.test(text)) violations.push('링크를 넣을 수 없습니다');
 	if (text.includes('#')) violations.push('해시태그를 넣을 수 없습니다');
 	if (!text.includes(rules.brand)) violations.push(`'${rules.brand}' 언급이 없습니다`);

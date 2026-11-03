@@ -72,7 +72,7 @@ export function fetchProfiles(): Promise<Profile[]> {
 }
 
 export function loginProfile(name: string): Promise<{ opened: boolean; message: string }> {
-	return request(`/profiles/${name}/login`, { method: 'POST' });
+	return request(`/profiles/${encodeURIComponent(name)}/login`, { method: 'POST' });
 }
 
 export function startPost(body: { videoId: string; videoTitle: string; comment: string; profile?: string }): Promise<{ jobId: string; profile: string }> {

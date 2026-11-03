@@ -27,7 +27,7 @@ GEMINI_API_KEY=발급받은_키
 운영 값은 루트 `config.yaml`에서 바꾼다.
 
 ```yaml
-profiles: [youtube1, youtube2, youtube3]   # 크롬 프로필 이름 (profiles/<이름> 폴더)
+profiles: [유튜브1, 유튜브2, 유튜브3]         # 크롬 프로필 이름 (profiles/<이름> 폴더)
 comment: { min_chars: 40, max_chars: 120, brand: 운명원 }
 limits: { daily_max_comments: 10 }          # 하루 게시 상한 (KST 기준)
 search: { query: "연애 고민", max_results: 50 }
@@ -49,7 +49,7 @@ pnpm dev
 ### 시연 흐름
 
 1. ① "연애 고민 영상 불러오기" 또는 링크 붙여넣기 → 영상 클릭
-2. ② "댓글 초안 생성" → 고민 한 줄과 초안 확인, 필요하면 수정. 글자 수와 규칙 위반이 실시간으로 표시된다
+2. ② 영상을 고르면 고민 한 줄과 초안이 자동으로 생성된다. 필요하면 수정. 공백 제외 글자 수와 규칙 위반이 실시간으로 표시된다
 3. ③ 프로필 선택(비우면 자동 배정) → "댓글 게시" → 크롬이 열리고 타이핑·게시·확인 단계가 진행된다
 4. 하단 기록 테이블에 결과가 남는다. 실패하면 사유와 그 순간 캡처가 붙는다
 
@@ -60,7 +60,7 @@ pnpm dev
 - 같은 영상에는 댓글을 한 번만 단다 (성공 기록 기준, 409)
 - 하루 상한을 넘으면 거부한다 (429)
 - 프로필을 지정하지 않으면 성공 기록이 가장 적은 프로필을 쓴다
-- 댓글은 40~120자, 링크·해시태그 금지, 브랜드 언급 필수, "써봤는데" 류 후기 표현 금지. 초안 생성과 게시 직전에 서버가 검사한다
+- 댓글은 공백 제외 40~120자, 링크·해시태그 금지, 브랜드 언급 필수, "써봤는데" 류 후기 표현 금지. 초안 생성과 게시 직전에 서버가 검사한다
 - 게시는 한 번에 하나만 진행된다
 
 ## 테스트
@@ -101,6 +101,21 @@ apps/frontend/src/
 | GET | `/api/log` | 게시 기록 |
 | GET | `/api/profiles` | 프로필과 오늘 게시 수 |
 | POST | `/api/profiles/:name/login` | 로그인용 크롬 열기 |
+
+## 사용한 오픈소스
+
+| 패키지 | 용도 | 라이선스 |
+|---|---|---|
+| [NestJS](https://nestjs.com) 11 | 백엔드 프레임워크 | MIT |
+| [React](https://react.dev) 19, [Vite](https://vite.dev) 8 | 대시보드 UI와 개발 서버 | MIT |
+| [TanStack Query](https://tanstack.com/query) 5 | 서버 상태 관리 | MIT |
+| [Playwright](https://playwright.dev) 1.64 | 로컬 크롬 프로필 제어, 타이핑·게시·캡처 | Apache-2.0 |
+| [@google/genai](https://github.com/googleapis/js-genai) 2 | Gemini API 호출 | Apache-2.0 |
+| [youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus) 2 | 유튜브 자막 조회 (비공식) | MIT |
+| [yaml](https://eemeli.org/yaml/) 2, [RxJS](https://rxjs.dev) 7 | 설정 파싱, SSE 이벤트 스트림 | ISC, Apache-2.0 |
+| [Jest](https://jestjs.io) 30, [Vitest](https://vitest.dev) 4 | 테스트 | MIT |
+
+외부 API는 YouTube Data API v3와 Gemini API를 쓴다. 댓글 생성 모델은 `config.yaml`에서 바꾼다.
 
 ## 문제 해결
 
